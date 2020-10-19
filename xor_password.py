@@ -15,33 +15,23 @@ group.add_argument('-d', '--decode', dest='decode', action='store_true', help='D
 group.add_argument('-e', '--encode', dest='encode', action='store_true', help='Encode password')
 args = parser.parse_args()
 
-def removePrefix (string):
-    """ Remove '{XOR}' prefix """
-    if string.lower().startswith("{xor}"):
-        return string[5:]
-    else:
-        return string
-
-def btxor (bytes):
-    """ Bytewise XOR, base '_' """
-    l = [ chr ( b ^ ord ('_') ) for b in bytes ]
+def strXor (string):
+    """ String XOR, base '_' """
+    l = [ chr ( ord(c) ^ ord ('_') ) for c in string ]
     return ''.join(l)
 
-def decodePassword (encodedPassword):
+def decodePassword (password):
     """ Decode encrypted password """
-    p = removePrefix(encodedPassword)
-    pDecodedB64 = base64.b64decode(p)
-    pDecoded = btxor(pDecodedB64)
-    return pDecoded
+    # Remove '{XOR}' prefix
+    if password.lower().startswith("{xor}"):
+        password = password[5:]
+    return strXor(base64.b64decode(password).decode())
     
 def encodePassword (password):
     """ Encode password """
-    p = removePrefix(password)
-    pBytes = str.encode(p)
-    pEncodedXor = btxor(pBytes)
-    pEncodedB64 = base64.b64encode(str.encode(pEncodedXor))
-    pEncoded = "{XOR}" + pEncodedB64.decode()
-    return pEncoded
+    pXor = strXor(password)
+    pBase64 = base64.b64encode(str.encode(pXor)).decode()
+    return "{XOR}" + pBase64
 
 def main():
     if args.decode:
