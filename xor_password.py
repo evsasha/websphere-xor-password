@@ -31,7 +31,7 @@ def encodePassword (password):
     """ Encode password """
     pXor = strXor(password)
     pBase64 = base64.b64encode(str.encode(pXor)).decode()
-    return "{XOR}" + pBase64
+    return "{xor}" + pBase64
 
 def main():
     if args.decode:
