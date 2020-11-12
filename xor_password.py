@@ -10,6 +10,7 @@ import base64
 # Read arguments
 parser = argparse.ArgumentParser(description='Decode|encode WebSphere passwords that use {xor} prepended tag.')
 parser.add_argument('password', help='Password to decode|encode')
+parser.add_argument('-s', '--silent', dest='silentMode', action='store_true', help='Silent mode')
 group = parser.add_mutually_exclusive_group(required=True)
 group.add_argument('-d', '--decode', dest='decode', action='store_true', help='Decode password')
 group.add_argument('-e', '--encode', dest='encode', action='store_true', help='Encode password')
@@ -25,7 +26,10 @@ def decodePassword (password):
     # Remove '{XOR}' prefix
     if password.lower().startswith("{xor}"):
         password = password[5:]
-    return strXor(base64.b64decode(password).decode())
+    try:
+        return strXor(base64.b64decode(password).decode())
+    except:
+        raise SystemExit("ERROR: Can't decode this password.")
     
 def encodePassword (password):
     """ Encode password """
@@ -34,12 +38,14 @@ def encodePassword (password):
     return "{xor}" + pBase64
 
 def main():
-    if args.decode:
-        print("> Decode mode")
+    if args.decode and args.silentMode:
+        print(decodePassword(args.password))
+    elif args.encode and args.silentMode:
+        print(encodePassword(args.password))
+    elif args.decode:
         print("> Decoded password: " + decodePassword(args.password))
     elif args.encode:
-        print("> Encode mode")
         print("> Encoded password: " + encodePassword(args.password))
-
+    
 if __name__ == "__main__":
     main()
